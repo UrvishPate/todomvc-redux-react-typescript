@@ -3,10 +3,8 @@ const compression = require('compression');
 const express = require('express');
 const http = require('http');
 const chalk = require('chalk');
-
 const isProd = process.env.NODE_ENV === 'production';
 const port = process.env.PORT || 3000;
-
 module.exports = function (options) {
   const app = express();
 
@@ -25,7 +23,7 @@ module.exports = function (options) {
   }));
 
   app.get("/*", function(req, res) {
-    renderer.render(
+    res.render(
       req.path,
       function(err, html) {
         if(err) {
@@ -46,9 +44,12 @@ module.exports = function (options) {
     console.log(chalk.green('Server started at http://localhost:' + port + '\n'));
   });
 };
-
-
-// Dev middleware
+/**
+ * Adds development middlewares to the application.
+ * 
+ * @param {Object} app - The application to which the middlewares are to be added.
+ * @param {Object} webpackConfig - The webpack configuration to be used.
+ */
 function addDevMiddlewares(app, webpackConfig) {
   const webpack = require('webpack');
   const webpackDevMiddleware = require('webpack-dev-middleware');
@@ -76,7 +77,14 @@ function addDevMiddlewares(app, webpackConfig) {
     });
   });
 }
-
+/**
+ * Adds production middlewares to the provided Express application.
+ * 
+ * @param {Object} app - The Express application.
+ * @param {Object} options - An object containing options for configuring the middlewares.
+ * @param {string} options.publicPath - The public path to serve static files from. Defaults to '/'.
+ * @param {string} options.outputPath - The path to the directory where the static files are located. Defaults to the 'build' directory in the current working directory.
+ */
 function addProdMiddlewares(app, options) {
   const publicPath = options.publicPath || '/';
   const outputPath = options.outputPath || path.resolve(process.cwd(), 'build');
